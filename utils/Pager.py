@@ -2,7 +2,7 @@ from math import ceil
 
 
 class Pager:
-    def __init__(self, query, per_page: int = 30, page: int = 1):
+    def __init__(self, query, per_page: int = 100, page: int = 1):
         """
         初始化分页参数
         :param query: 查询对象
@@ -77,3 +77,51 @@ class Pager:
         if self.page <= left:
             return range(1, length + 1)
         return range(self.pages - length, self.pages + 1)
+
+class Pager2:
+    def __init__(self, files,dirs, per_page: int = 100, page: int = 1):
+        """
+        初始化分页参数
+        :param query: 查询对象
+        :param per_page: 一页多少内容
+        :param page: 第几页 1起
+        """
+        self.files = files
+        self.dirs = dirs
+        self.per_page = per_page
+        self.page = page
+
+    @property
+    def items(self):
+        """
+        得到分页后的内容
+        :return: [model row / Model]
+        """
+        print(self.page, self.pages)
+        if self.page > self.pages:
+            return []
+        offset_num = (self.page - 1) * self.per_page
+        # return self.query[offset_num:offset_num+self.per_page]
+        if offset_num+self.per_page<=len(self.dirs):
+            return {'dir':self.dirs[offset_num:offset_num + self.per_page],'file':None}
+        elif offset_num>len(self.dirs):
+            return {'dir':self.dirs,'file':self.files[offset_num-len(self.dirs):offset_num + self.per_page-len(self.dirs)]}
+        else:
+            return {'dir':self.dirs[offset_num:],'file':self.files[:(offset_num + self.per_page-len(self.dirs))]}
+    @property
+    def counts(self):
+        """
+        总数据量
+        :return: int
+        """
+        return len(self.files)+len(self.dirs)
+
+    @property
+    def pages(self):
+        """
+        总页数
+        :return: int
+        """
+        return ceil(self.counts / self.per_page)
+
+

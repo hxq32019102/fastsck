@@ -9,14 +9,13 @@ from pydantic.schema import timedelta
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
-
 from dependencies import authenticate_user, create_access_token, get_current_active_user
-from routers import user,up_down_load
+from routers import user, up_down_load
 
 app = FastAPI()
 
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # 可跨域访问的域名
 origins = [
     "http://localhost",
@@ -48,6 +47,7 @@ app.include_router(
     responses={404: {"description": "Not found"}},
 )
 
+
 @app.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
@@ -61,11 +61,12 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         access_token = create_access_token(
             data={"sub": user.username}, expires_delta=timedelta(minutes=15)
         )
-        return {"access_token": access_token, "token_type": "bearer","username": user.username,}
+
+        return {"access_token": access_token, "token_type": "bearer", "username": user.username}
     except Exception as e:
         return {"message": 'error'}
 
 
 if __name__ == '__main__':
-    uvicorn.run(app='main:app', host="10.10.14.5", port=8000, reload=True, debug=True)
-    #testxsxsxsxsxsxsxsxsxsxsxsx
+    uvicorn.run(app='main:app', host="127.0.0.1", port=8000, reload=True, debug=True)
+    '''sqlacodegen mysql://root:123456@127.0.0.1:3306/sck2 > models.py'''

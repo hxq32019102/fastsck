@@ -34,30 +34,51 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 # dir
 def get_dir_list(db: Session, parent_id: int):
-    return db.query(models.Dir).filter(models.Dir.parent_id == parent_id)
+    return db.query(models.DirInfo).filter(models.DirInfo.parent_id == parent_id)
 
 
 def get_dir_by_id(db: Session, id: int):
-    return db.query(models.Dir).filter(models.Dir.id == id).first()
+    return db.query(models.DirInfo).filter(models.DirInfo.id == id).first()
 
 
 def get_dir_by_name_parent_id(db: Session, dirname: str, parent_id: int):
-    return db.query(models.Dir).filter(models.Dir.parent_id == parent_id, models.Dir.dirname == dirname).first()
+    return db.query(models.DirInfo).filter(models.DirInfo.parent_id == parent_id, models.DirInfo.dir_name == dirname).first()
 
 
 def create_dir(db: Session, dir: schemas.DirCreate):
-    db_dir = models.Dir(dirname=dir.dirname, parent_id=dir.parent_id, flag=1, update_time=datetime.now(),
-                        create_time=datetime.now())
+    db_dir = models.DirInfo(dir_name=dir.dir_name, parent_id=dir.parent_id, status=1,creat_time=datetime.now())
     db.add(db_dir)
     db.commit()
     db.refresh(db_dir)
     return db_dir
 
 
+
 # file
+def get_file_list(db: Session, dir_id: int):
+    return db.query(models.FileInfo).filter(models.FileInfo.dir_id == dir_id)
 
-def get_file_by_dirid_(db: Session, dirid: int, filename: str):
-    return db.query(models.File).filter(models.File.dirid == dirid, models.File.filename == filename).first()
 
-def get_file_by_MD5_(db: Session, MD5:str):
-    return db.query(models.File).filter(models.File.md5 == MD5).first()
+
+def get_file_by_dirid_filename(db: Session, dirid: int, filename: str):
+    return db.query(models.FileInfo).filter(models.FileInfo.dir_id == dirid, models.FileInfo.file_name == filename).first()
+
+def get_file_by_uid(db: Session, uid: str):
+    return db.query(models.FileInfo).filter(models.FileInfo.uid == uid).first()
+def get_file_name_by_url(db: Session, uid: str):
+    return db.query(models.FileInfo).filter(models.FileInfo.uid == uid).first()
+def create_file(db: Session,dir_id:int,file_name:str,file_size:int,uid:str):
+    db_file = models.FileInfo(dir_id=dir_id,file_name=file_name,file_size=file_size,file_upload_time=datetime.now(),uid=uid)
+    db.add(db_file)
+    db.commit()
+    db.refresh(db_file)
+    return db_file
+    # file_id = Column(Integer, primary_key=True)
+    # dir_id = Column(ForeignKey('dir_info.id'), nullable=False, index=True)
+    # file_name = Column(VARCHAR(255), nullable=False)
+    # file_size = Column(Integer, nullable=False)
+    # file_upload_time = Column(DateTime, nullable=False)
+    # file_status = Column(Integer, nullable=False, server_default=text("'1'"))
+    # url = Column(String(255), nullable=False)
+
+

@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 import pymysql
 pymysql.install_as_MySQLdb()
-SQLALCHEMY_DATABASE_URL = "mysql://root:123456@10.10.10.53:3306/sck2?charset=utf8"
+SQLALCHEMY_DATABASE_URL = "mysql://root:123456@127.0.0.1:3306/sck2?charset=utf8"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
