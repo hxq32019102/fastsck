@@ -34,8 +34,7 @@ def get_list_dir(parentid: int = None, current_page: int = 1, limit: int = 100, 
 
 @router.get("/dir/tree/dir_file/")
 def get_list_dir_file(parentid: int = None, current_page: int = 1, limit: int = 100, db: Session = Depends(get_db)):
-    '''目录树可用于弹窗目录，不包含该目录下文件，只有文件夹
-    parentid:默认根目录 None'''
+    '''目录，包含目录下文件夹和文件'''
     files = crud.get_file_list(db, dir_id=parentid).all()
     dirs = crud.get_dir_list(db, parent_id=parentid).all()
 
