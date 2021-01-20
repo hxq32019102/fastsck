@@ -1,6 +1,8 @@
 import os
 from math import ceil
 import uuid
+from typing import List
+
 from fastapi import APIRouter, Form, HTTPException, File, UploadFile
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -88,6 +90,38 @@ async def file_upload(dir_id: int = Form(...), file: UploadFile = File(...), db:
     raise HTTPException(status_code=400, detail="dir not exit")
 
 
+@router.post('/files/upload/')
+async def dir_file_down(dir_id: int = Form(...), files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
+    db_file = crud.get_dir_by_id(db, id=dir_id)
+    if db_file:
+        file_files = []
+        for file in files:
+            db_file = crud.get_file_by_dirid_filename(db, dirid=dir_id, filename=file.filename)
+            if db_file:
+                file_files.append({'error': f"file{file.filename} already exit", 'filename': file.filename})
+                continue
+            else:
+                try:
+                    while 1:
+                        uid = str(uuid.uuid1())
+                        db_file = crud.get_file_by_uid(db, uid=uid)
+                        if not db_file:
+                            break
+                    path = 'static/data/' + uid
+                    res = await file.read()
+                    with open(path, "wb") as f:
+                        f.write(res)
+                    # 保存在数据库
+                    filesize = os.path.getsize(path)
+                    crud.create_file(db=db, dir_id=dir_id, file_size=filesize, uid=uid, file_name=file.filename)
+                    file_files.append(True)
+                except Exception as e:
+                    file_files.append({"error": str(e), 'filename': file.filename})
+
+        return file_files
+    raise HTTPException(status_code=400, detail="dir not exit")
+
+
 @router.get('/file/download/')
 async def file_down(uid: str, db: Session = Depends(get_db)):
     '''根据uid下载文件'''
@@ -171,9 +205,9 @@ async def mergeChunks(chunkNumber: int = Form(...),
 
             # 保存在数据库
             filesize = os.path.getsize(path)
-            if filesize==totalSize:
+            if filesize == totalSize:
                 return crud.create_file(db=db, dir_id=dir_id, file_size=filesize, uid=uid, file_name=file.filename)
             else:
-                return {"message": '文件不完整' }
+                return {"message": '文件不完整'}
         except Exception as e:
             return {"message": str(e), 'filename': file.filename}
