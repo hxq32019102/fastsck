@@ -47,6 +47,14 @@ app.include_router(
     responses={404: {"description": "Not found"}},
 )
 
+app.include_router(
+    up_down_load.router,
+    prefix="/pic",
+    tags=["素材操作/贴图操作"],
+    dependencies=[Depends(get_current_active_user)],
+    responses={404: {"description": "Not found"}},
+)
+
 
 @app.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):

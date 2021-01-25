@@ -92,6 +92,7 @@ async def file_upload(dir_id: int = Form(...), file: UploadFile = File(...), db:
 
 @router.post('/files/upload/')
 async def dir_file_down(dir_id: int = Form(...), files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
+    '''多文件上传'''
     db_file = crud.get_dir_by_id(db, id=dir_id)
     if db_file:
         file_files = []
@@ -180,6 +181,7 @@ async def mergeChunks(chunkNumber: int = Form(...),
                       dir_id: int = Form(...),
                       totalChunks: int = Form(...),
                       totalSize: int = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
+    '''分片'''
     path = 'static/tmp/' + md5 + '_' + str(chunkNumber)
     res = await file.read()
     with open(path, "wb") as f:
@@ -211,3 +213,9 @@ async def mergeChunks(chunkNumber: int = Form(...),
                 return {"message": '文件不完整'}
         except Exception as e:
             return {"message": str(e), 'filename': file.filename}
+
+
+@router.get('/file/search/')
+async def file_down(filename: str, db: Session = Depends(get_db)):
+    '''文件搜索'''
+    return crud.get_file_like(db, filename=filename)

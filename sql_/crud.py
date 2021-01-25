@@ -12,16 +12,15 @@ from sql_ import schemas, models
 
 
 # user
-def password_change(db: Session, username: str, password: str,new_password: str):
+def password_change(db: Session, username: str, password: str, new_password: str):
     user = db.query(models.User).filter(models.User.username == username, models.User.password == password).first()
     if user:
-        user = db.query(models.User).filter(models.User.id==user.id).first()
+        user = db.query(models.User).filter(models.User.id == user.id).first()
         print(user)
-        user.password=new_password
+        user.password = new_password
         db.commit()
         db.refresh(user)
         return user
-
 
 
 def get_password(db: Session, username: str):
@@ -65,6 +64,10 @@ def create_dir(db: Session, dir: schemas.DirCreate):
 # file
 def get_file_list(db: Session, dir_id: int):
     return db.query(models.FileInfo).filter(models.FileInfo.dir_id == dir_id)
+
+
+def get_file_like(db: Session, filename: str):
+    return db.query(models.FileInfo).filter(models.FileInfo.file_name.like(f'%{filename}%')).all()
 
 
 def get_file_by_dirid_filename(db: Session, dirid: int, filename: str):
